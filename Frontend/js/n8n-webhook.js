@@ -1,7 +1,7 @@
 const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/predict';
 const EMAILJS_PUBLIC_KEY = 'z_fRa6B1swiyrPFD6';
 const EMAILJS_SERVICE_ID = 'service_5hsfx08';
-const EMAILJS_TEMPLATE_ID = 'template_e6rfayy';
+const EMAILJS_TEMPLATE_ID = 'template_31vz9uj';
 
 if (window.emailjs && typeof window.emailjs.init === 'function') {
   window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
