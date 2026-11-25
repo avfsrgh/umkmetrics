@@ -22,9 +22,9 @@ const AppState = {
 };
 
 if (window.Chart) {
-  Chart.defaults.color = '#a3a3a3';
-  Chart.defaults.font.family = "'Silkscreen', monospace";
-  Chart.defaults.borderColor = '#2a2a2a';
+  Chart.defaults.color = '#1C322D';
+  Chart.defaults.font.family = "'JetBrains Mono', monospace";
+  Chart.defaults.borderColor = 'rgba(28, 50, 45, 0.14)';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -499,7 +499,7 @@ function showProtokol(jenis) {
     ins: {
       title: 'Protokol: Sesuaikan Titrasi INS',
       priority: 'PRIORITAS TINGGI',
-      color: '#dc2626',
+      color: '#4A5D58',
       steps: [
         'Lakukan audit sumber daya kelembagaan dalam 24 jam',
         'Identifikasi gap antara kebutuhan dan ketersediaan NIB',
@@ -512,7 +512,7 @@ function showProtokol(jenis) {
     ect: {
       title: 'Protokol: Penyelarasan Siklus ECT',
       priority: 'PRIORITAS SEDANG',
-      color: '#d97706',
+      color: '#EBB552',
       steps: [
         'Analisis konektivitas pasar saat ini vs benchmark industri',
         'Mapping pelanggan potensial di segmen baru',
@@ -525,7 +525,7 @@ function showProtokol(jenis) {
     bio: {
       title: 'Protokol: Cek Sinkronisasi Biometrik',
       priority: 'PEMELIHARAAN',
-      color: '#059669',
+      color: '#1C322D',
       steps: [
         'Validasi data periferal standar organisasi',
         'Pastikan semua baseline klinis optimal',
@@ -867,7 +867,7 @@ function applyDynamicData() {
     const sorted = [...newData].sort((a, b) => b - a);
     const top1 = sorted[0], top2 = sorted[1];
     window.histChartInst.data.datasets[0].data = newData;
-    window.histChartInst.data.datasets[0].backgroundColor = newData.map(v => v===top1?'#1a56db': v===top2?'#3b82f6':'#93c5fd');
+    window.histChartInst.data.datasets[0].backgroundColor = newData.map(v => v===top1?'#EBB552': v===top2?'#1C322D':'#F1CDBE');
     window.histChartInst.update('none');
   } else {
     updateDistributionUI();
@@ -996,7 +996,7 @@ function refreshAllCharts() {
     const sorted = [...newData].sort((a, b) => b - a);
     const top1 = sorted[0], top2 = sorted[1];
     window.histChartInst.data.datasets[0].data = newData;
-    window.histChartInst.data.datasets[0].backgroundColor = newData.map(v => v===top1?'#1a56db': v===top2?'#3b82f6':'#93c5fd');
+    window.histChartInst.data.datasets[0].backgroundColor = newData.map(v => v===top1?'#EBB552': v===top2?'#1C322D':'#F1CDBE');
     window.histChartInst.options.animation = { duration: 600 };
     window.histChartInst.update();
   }
@@ -1021,18 +1021,18 @@ function renderProfilePage() {
 
   const displayName = user.displayName || user.umkm_name || user.email?.split('@')[0] || 'Pengguna';
   const roleLabel   = user.role === 'employee' ? 'Pegawai' : 'Owner';
-  const roleColor   = user.role === 'employee' ? '#7c3aed' : '#1a56db';
-  const roleBg      = user.role === 'employee' ? '#ede9fe' : '#dbeafe';
+  const roleColor   = '#1C322D';
+  const roleBg      = user.role === 'employee' ? '#F1CDBE' : '#EBB552';
   const initial     = displayName[0].toUpperCase();
 
   container.innerHTML = `
     <!-- Hero card -->
-    <div style="background:linear-gradient(135deg,#1e3a8a,#1a56db);border-radius:20px;padding:32px;color:#fff;display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:20px">
-      <div style="width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,0.2);border:3px solid rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;flex-shrink:0">${initial}</div>
+    <div style="background:#F8F3EE;border:1px solid rgba(28,50,45,.14);border-radius:16px;padding:32px;color:#1C322D;display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:20px">
+      <div style="width:88px;height:88px;border-radius:50%;background:rgba(28,50,45,.08);border:2px solid rgba(28,50,45,.14);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;flex-shrink:0">${initial}</div>
       <div>
         <div style="font-size:24px;font-weight:800;margin-bottom:4px">${displayName}</div>
         <div style="font-size:14px;opacity:0.8;margin-bottom:10px">${user.email || ''}</div>
-        <span style="background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700">${roleLabel}</span>
+        <span style="background:#F1CDBE;color:#1C322D;border-radius:9999px;padding:4px 14px;font-size:12px;font-weight:700">${roleLabel}</span>
       </div>
     </div>
 
@@ -1051,9 +1051,9 @@ function renderProfilePage() {
     <div class="card">
       <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin-bottom:16px;letter-spacing:1px">AKSI CEPAT</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-        ${quickAction('📋','Isi Kuesioner','Tambah data kesehatan UMKM baru',"navigate('formdata')",'var(--primary-light)','var(--primary)')}
-        ${quickAction('📊','Lihat Dashboard','Pantau perkembangan skor',"navigate('home')",'#d1fae5','var(--success)')}
-        ${quickAction('🚪','Logout','Keluar dari sistem',"showModal('logoutModal')",'#fee2e2','var(--danger)')}
+        ${quickAction('📋','Isi Kuesioner','Tambah data kesehatan UMKM baru',"navigate('formdata')",'#F1CDBE','#1C322D')}
+        ${quickAction('📊','Lihat Dashboard','Pantau perkembangan skor',"navigate('home')",'#EBB552','#1C322D')}
+        ${quickAction('🚪','Logout','Keluar dari sistem',"showModal('logoutModal')",'rgba(28,50,45,.08)','#1C322D')}
       </div>
     </div>
   `;
@@ -1142,7 +1142,7 @@ function initHomeCharts() {
     type: 'doughnut',
     data: {
       labels: ['Buruk','Cukup','Baik','Sangat Baik'],
-      datasets: [{ data:[buruk, cukup, baik, 0], backgroundColor:['#ef4444','#1a56db','#22c55e','#d1d5db'], borderWidth:3, borderColor:'#fff', hoverOffset:10 }]
+      datasets: [{ data:[buruk, cukup, baik, 0], backgroundColor:['#F1CDBE','#EBB552','#1C322D','#D9D3CC'], borderWidth:3, borderColor:'#F8F3EE', hoverOffset:10 }]
     },
     options: { cutout:'72%', plugins:{ legend:{display:false} }, animation:{ animateScale:true, animateRotate:true, duration:1000, easing:'easeOutBounce' } }
   });
@@ -1158,11 +1158,11 @@ function initHomeCharts() {
     type: 'bar',
     data: {
       labels: ['Budaya','Inovasi','Proses','Sumber\nDaya','Kepemimpinan','Eksternal'],
-      datasets: [{ data:[3.41,2.38,3.31,1.79,2.95,1.80], backgroundColor:['#0f9b6e','#d97706','#1a56db','#ef4444','#1a56db','#0891b2'], borderRadius:8, borderSkipped:false }]
+      datasets: [{ data:[3.41,2.38,3.31,1.79,2.95,1.80], backgroundColor:['#EBB552','#F1CDBE','#1C322D','#4A5D58','#EBB552','#1C322D'], borderRadius:8, borderSkipped:false }]
     },
     options: {
       plugins:{ legend:{display:false} },
-      scales:{ y:{ beginAtZero:true, max:5, grid:{color:'#2a2a2a'}, ticks:{stepSize:1} }, x:{ grid:{display:false} } },
+      scales:{ y:{ beginAtZero:true, max:5, grid:{color:'rgba(28,50,45,0.14)'}, ticks:{stepSize:1} }, x:{ grid:{display:false} } },
       animation:{ duration:1200, easing:'easeOutElastic', delay:(ctx)=>ctx.dataIndex*80 }
     }
   });
@@ -1170,7 +1170,7 @@ function initHomeCharts() {
   destroyChart('trendMini');
   new Chart(document.getElementById('trendMini'), {
     type:'line',
-    data:{ labels:['Q1','Q2','Q3','Q4','Q5'], datasets:[{ data:[1.2,1.8,2.0,2.5,3.1], borderColor:'rgba(255,255,255,0.9)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#fff', fill:true, backgroundColor:'rgba(255,255,255,0.1)', tension:0.4 }] },
+    data:{ labels:['Q1','Q2','Q3','Q4','Q5'], datasets:[{ data:[1.2,1.8,2.0,2.5,3.1], borderColor:'#EBB552', borderWidth:2, pointRadius:3, pointBackgroundColor:'#1C322D', fill:true, backgroundColor:'rgba(235,181,82,0.18)', tension:0.4 }] },
     options:{ plugins:{legend:{display:false}}, scales:{y:{display:false},x:{display:false}}, animation:{duration:1000} }
   });
 }
@@ -1202,10 +1202,10 @@ function initSpiderChart() {
     type:'radar',
     data:{labels:['Sumber Daya','Kepemimpinan','Proses','Budaya','Inovasi','Eksternal'],
           datasets:[
-            {label:'Skor Aktual',data:[ins,ldi,weq,ov,ops,ect],backgroundColor:'rgba(26,86,219,0.18)',borderColor:'#1a56db',pointBackgroundColor:'#1a56db',borderWidth:2.5,pointRadius:5},
-            {label:'Benchmark',data:[2.5,2.5,2.5,2.5,2.5,2.5],backgroundColor:'transparent',borderColor:'#d1d5db',borderDash:[5,5],borderWidth:1.5,pointRadius:3}
+            {label:'Skor Aktual',data:[ins,ldi,weq,ov,ops,ect],backgroundColor:'rgba(235,181,82,0.18)',borderColor:'#EBB552',pointBackgroundColor:'#EBB552',borderWidth:2.5,pointRadius:5},
+            {label:'Benchmark',data:[2.5,2.5,2.5,2.5,2.5,2.5],backgroundColor:'transparent',borderColor:'#1C322D',borderDash:[5,5],borderWidth:1.5,pointRadius:3}
           ]},
-    options:{scales:{r:{beginAtZero:true,max:5,ticks:{stepSize:1,backdropColor:'transparent'},pointLabels:{font:{size:11,weight:'700'}},grid:{color:'#e5e7eb'}}},plugins:{legend:{display:false}},animation:{duration:1200}}
+    options:{scales:{r:{beginAtZero:true,max:5,ticks:{stepSize:1,backdropColor:'transparent'},pointLabels:{font:{size:11,weight:'700'}},grid:{color:'rgba(28,50,45,0.14)'}}},plugins:{legend:{display:false}},animation:{duration:1200}}
   });
 }
 
@@ -1229,8 +1229,8 @@ function initDistCharts() {
       dataArr.forEach((bar, i) => {
         if (vals[i] === t1 || vals[i] === t2) {
           ctx.save();
-          ctx.fillStyle = '#1e3a8a';
-          ctx.font = '12px Silkscreen, monospace';
+          ctx.fillStyle = '#EBB552';
+          ctx.font = "600 12px 'JetBrains Mono', monospace";
           ctx.textAlign = 'center';
           ctx.fillText('Peak', bar.x, bar.y - 8);
           ctx.restore();
@@ -1245,14 +1245,14 @@ function initDistCharts() {
       labels: ['1.0','1.5','2.0','2.5','3.0','3.5','4.0'],
       datasets: [{
         data: raw,
-        backgroundColor: raw.map(v => v===top1?'#1a56db': v===top2?'#3b82f6':'#93c5fd'),
+        backgroundColor: raw.map(v => v===top1?'#EBB552': v===top2?'#1C322D':'#F1CDBE'),
         borderRadius: 6, borderSkipped: false
       }]
     },
     plugins: [peakPlugin],
     options: {
       plugins: { legend:{display:false} },
-      scales: { y:{ beginAtZero:true, grid:{color:'#2a2a2a'} }, x:{ grid:{display:false}, title:{display:true,text:'Skor (1.0 – 4.0)'} } },
+      scales: { y:{ beginAtZero:true, grid:{color:'rgba(28,50,45,0.14)'} }, x:{ grid:{display:false}, title:{display:true,text:'Skor (1.0 – 4.0)'} } },
       animation: { duration:1000, easing:'easeOutBounce', delay:(ctx)=>ctx.dataIndex*60 }
     }
   });
@@ -1261,7 +1261,7 @@ function initDistCharts() {
 function initCompCharts() {
   AppState.chartsInit.comparison = true;
   destroyChart('trendChart');
-  new Chart(document.getElementById('trendChart'),{type:'bar',data:{labels:['Mei','Agt','Nov','Des'],datasets:[{data:[1.5,1.8,3.2,2.8],backgroundColor:['#d1d5db','#d1d5db','#1a56db','#93c5fd'],borderRadius:6,borderSkipped:false}]},options:{plugins:{legend:{display:false}},scales:{y:{display:false},x:{grid:{display:false}}},animation:{duration:900,easing:'easeOutElastic',delay:(c)=>c.dataIndex*100}}});
+  new Chart(document.getElementById('trendChart'),{type:'bar',data:{labels:['Mei','Agt','Nov','Des'],datasets:[{data:[1.5,1.8,3.2,2.8],backgroundColor:['#D9D3CC','#D9D3CC','#EBB552','#F1CDBE'],borderRadius:6,borderSkipped:false}]},options:{plugins:{legend:{display:false}},scales:{y:{display:false},x:{grid:{display:false}}},animation:{duration:900,easing:'easeOutElastic',delay:(c)=>c.dataIndex*100}}});
 }
 
 function filterPipa(btn, type) {

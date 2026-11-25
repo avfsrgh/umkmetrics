@@ -234,3 +234,59 @@
   .hero-desc { font-size: 14px; }
   .hero-stats { gap: 20px; }
 }
+
+/* Mindful Moments authentication surface */
+.auth-left,
+.auth-right {
+  background: #1C322D;
+}
+
+.auth-left {
+  background-image: none;
+}
+
+.auth-form-wrap {
+  max-width: 480px;
+  padding: 32px;
+  background: #F8F3EE;
+  border: 1px solid rgba(28, 50, 45, 0.14);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+}
+
+.auth-title,
+.role-card-title {
+  color: #1C322D;
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-subtitle {
+  color: #4A5D58;
+  font-family: 'Playfair Display', serif;
+}
+
+.role-card,
+.field-wrap,
+.field-number-wrap {
+  background: #F8F3EE;
+  border-color: rgba(28, 50, 45, 0.2);
+  border-radius: 8px;
+}
+
+.role-card.selected,
+.role-card:hover {
+  border-color: #1C322D;
+  background: #F1CDBE;
+}
+
+.btn-auth {
+  background: #EBB552;
+  color: #1C322D;
+  border-radius: 9999px;
+}
+
+@media (max-width: 640px) {
+  .auth-form-wrap {
+    padding: 24px;
+  }
+}
