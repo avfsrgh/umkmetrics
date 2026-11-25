@@ -1,4 +1,13 @@
 const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/predict';
+const EMAILJS_PUBLIC_KEY = 'z_fRa6B1swiyrPFD6';
+const EMAILJS_SERVICE_ID = 'service_5hsfx08';
+const EMAILJS_TEMPLATE_ID = 'template_e6rfayy';
+
+if (window.emailjs && typeof window.emailjs.init === 'function') {
+  window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+} else {
+  console.error('[UMKMetrics] EmailJS SDK gagal dimuat.');
+}
 
 window.addEventListener('load', () => {
   const originalSaveEvaluasi = window.saveEvaluasi;
@@ -108,9 +117,13 @@ window.addEventListener('load', () => {
         <div class="n8n-factors">${factorRows}</div>
         <div class="n8n-recommendation"><span class="n8n-label">REKOMENDASI AI</span><p>${escapeN8n(recommendation)}</p></div>
         ${window._lastN8nError ? `<p class="n8n-error-message">${escapeN8n(window._lastN8nError)} Skor komposit Supabase ditampilkan sebagai fallback.</p>` : ''}
-        <div class="n8n-email-compose">
-          <input id="n8n-email-recipient" type="email" placeholder="Email dosen" aria-label="Email penerima laporan" required>
-          <button type="button" id="n8n-send-email-btn">BUKA DRAFT GMAIL</button>
+        <div class="n8n-email-section">
+          <div class="n8n-label">KIRIM LAPORAN KE EMAIL DOSEN</div>
+          <div class="n8n-email-compose">
+            <input id="n8n-email-recipient" type="email" placeholder="Masukkan email dosen (contoh: dosen@kampus.ac.id)" aria-label="Email dosen" required>
+            <button type="button" id="n8n-send-email-btn">KIRIM KE EMAIL DOSEN</button>
+          </div>
+          <div id="n8n-email-status" class="n8n-email-status" role="status" aria-live="polite"></div>
         </div>
         <div class="n8n-actions">
           <button type="button" class="n8n-primary" onclick="document.getElementById('feedbackPopup').remove();navigate('home')">LIHAT DASHBOARD</button>
@@ -142,10 +155,12 @@ window.addEventListener('load', () => {
         .n8n-recommendation{margin-top:12px}
         .n8n-recommendation p{margin:8px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
         .n8n-error-message{padding:10px;border:2px dashed #FFFFFF;background:#000000}
-        .n8n-email-compose{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:18px}
+        .n8n-email-section{margin-top:18px;padding:12px;border:1px solid #FFFFFF;background:#000000}
+        .n8n-email-compose{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:10px}
         .n8n-email-compose input,.n8n-email-compose button{min-width:0;min-height:44px;padding:10px;border:1px solid #FFFFFF;border-radius:0;background:#000000;color:#FFFFFF;font:400 12px monospace}
         .n8n-email-compose button{cursor:pointer;font-family:'Silkscreen',monospace}
         .n8n-email-compose button:disabled{opacity:.6;cursor:wait}
+        .n8n-email-status{min-height:20px;margin-top:8px;color:#FFFFFF;font:400 12px monospace;overflow-wrap:anywhere}
         .n8n-actions{display:flex;gap:12px;margin-top:18px}
         .n8n-actions button{min-height:44px;padding:10px 14px;border:2px solid #FFFFFF;font:400 12px 'Silkscreen',monospace;letter-spacing:.04em;cursor:pointer}
         .n8n-primary{flex:1;background:#FFFFFF;color:#000000;box-shadow:4px 4px 0 #4A4A4A}
@@ -156,86 +171,98 @@ window.addEventListener('load', () => {
     modal.addEventListener('click', event => {
       if (event.target === modal) modal.remove();
     });
-    modal.querySelector('#n8n-send-email-btn').addEventListener('click', sendResultToGmail);
+    modal.querySelector('#n8n-send-email-btn').addEventListener('click', sendEvaluationEmail);
   };
 });
 
-async function sendResultToGmail(event) {
+async function sendEvaluationEmail(event) {
   const button = event.currentTarget;
   const input = document.getElementById('n8n-email-recipient');
+  const status = document.getElementById('n8n-email-status');
   const recipient = input.value.trim();
   if (!input.reportValidity()) return;
 
-  const draftWindow = window.open('about:blank', '_blank');
   button.disabled = true;
-  button.textContent = 'MENYIAPKAN DRAFT...';
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 12000);
+  button.textContent = 'MENGIRIM LAPORAN...';
+  status.textContent = '';
 
   try {
-    const response = await fetch(N8N_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        ...(window._lastN8nPayload || {}),
-        email_tujuan: recipient,
-        evaluasi: window._lastEvaluationData || {},
-        hasil_n8n: window._lastN8nResult || {},
-      }),
-      signal: controller.signal,
-    });
-    if (!response.ok) {
-      throw new Error(`n8n mengembalikan status HTTP ${response.status}.`);
+    if (!window.emailjs || typeof window.emailjs.send !== 'function') {
+      throw new Error('EmailJS SDK tidak tersedia. Muat ulang halaman dan coba lagi.');
     }
 
-    const responseData = await response.json();
-    const result = Array.isArray(responseData) ? responseData[0] : responseData;
-    const emailHtml = result && (result.email_html || (result.data && result.data.email_html));
-    const composeUrl = result && (result.gmail_compose_url || (result.data && result.data.gmail_compose_url));
-    if (typeof emailHtml !== 'string' || !emailHtml.trim()) {
-      throw new Error('Respons n8n tidak menyertakan email_html.');
+    const evaluation = window._lastEvaluationData || {};
+    const result = window._lastN8nResult || {};
+    const composite = evaluation.composite || {};
+    const fallbackScore = Number.isFinite(Number(composite.composite))
+      ? Number(composite.composite) * 100
+      : Number(composite.scoreOn5) * 20;
+    const score = toPercent(result.skor_fundamental, fallbackScore);
+    if (!Number.isFinite(score)) {
+      throw new Error('Skor evaluasi tidak tersedia.');
     }
-    if (typeof composeUrl !== 'string' || !composeUrl.trim()) {
-      throw new Error('Respons n8n tidak menyertakan gmail_compose_url.');
+    const roundedScore = Math.round(score);
+    const mitra = result.mitra
+      || (typeof AppState !== 'undefined' && AppState.currentUser &&
+        (AppState.currentUser.umkm_name || AppState.currentUser.nama_umkm || AppState.currentUser.displayName))
+      || 'UMKM Mitra';
+    const kategori = result.kategori || composite.category || '--';
+    const statusKeputusan = result.status_keputusan || composite.category || '--';
+    const scores = result.scores || evaluation.scores || {};
+    const getScore = key => factorPercent(scores[key] !== undefined ? scores[key] : scores[key.toLowerCase()]);
+    let persona;
+
+    if (roundedScore >= 80) {
+      persona = {
+        persona_badge: 'PERSONA: VISIONARY SCALER (SIAP TUMBUH)',
+        persona_narasi: 'Sebagai pemimpin usaha pada ' + mitra + ', fondasi sumber daya dan operasional Anda sudah terstandarisasi dengan sangat baik. Tantangan utama Anda bukan lagi bertahan hidup, melainkan menjaga konsistensi kualitas saat membuka kanal distribusi atau cabang baru.',
+        langkah_1: 'Replikasi SOP operasional yang sudah berjalan ke lini produk atau cabang baru.',
+        langkah_2: 'Alokasikan surplus arus kas untuk ekspansi pemasaran digital dan kemitraan B2B.',
+        langkah_3: 'Lakukan evaluasi berkala bersama pegawai agar budaya kerja tetap selaras.',
+      };
+    } else if (roundedScore >= 60) {
+      persona = {
+        persona_badge: 'PERSONA: RESILIENT BUILDER (FASE KONSOLIDASI)',
+        persona_narasi: 'Sebagai pengelola ' + mitra + ', bisnis Anda memiliki daya tahan yang baik dan arus transaksi yang berjalan, namun masih bergantung pada kontrol harian pemilik. Sebelum melakukan ekspansi, fokus utama Anda adalah merapikan efisiensi biaya dan dokumentasi kerja.',
+        langkah_1: 'Audit ulang struktur HPP dan negosiasi ulang kontrak pemasok bahan baku utama.',
+        langkah_2: 'Susun SOP tertulis untuk alur kerja harian agar tidak bergantung pada satu individu.',
+        langkah_3: 'Ajak pegawai mengisi kuesioner faktor internal (OV, LDI, WEQ) untuk memetakan kebutuhan tim.',
+      };
+    } else {
+      persona = {
+        persona_badge: 'PERSONA: SURVIVAL NAVIGATOR (PRIORITAS PEMULIHAN)',
+        persona_narasi: 'Saat ini ' + mitra + ' berada pada fase krusial yang membutuhkan keputusan cepat dan terukur. Prioritas utama Anda sebagai pemilik usaha adalah mengamankan likuiditas kas, memangkas pemborosan operasional, dan membangun ulang ritme komunikasi tim.',
+        langkah_1: 'Hentikan sementara pengeluaran non-esensial dan pisahkan pencatatan kas pribadi vs usaha.',
+        langkah_2: 'Tetapkan target evaluasi mingguan untuk memantau perbaikan indikator terendah.',
+        langkah_3: 'Lakukan briefing rutin dengan seluruh pegawai untuk menyelaraskan target penyelamatan usaha.',
+      };
     }
 
-    const parsedComposeUrl = new URL(composeUrl);
-    if (parsedComposeUrl.protocol !== 'https:' || parsedComposeUrl.hostname !== 'mail.google.com') {
-      throw new Error('URL draft tidak mengarah ke Gmail yang aman.');
-    }
-    if (!navigator.clipboard || typeof navigator.clipboard.write !== 'function' || typeof ClipboardItem === 'undefined') {
-      throw new Error('Clipboard Rich HTML tidak tersedia di browser ini.');
-    }
-
-    const plainText = result.email_text || new DOMParser()
-      .parseFromString(emailHtml, 'text/html').body.textContent || '';
-    await navigator.clipboard.write([new ClipboardItem({
-      'text/html': new Blob([emailHtml], { type: 'text/html' }),
-      'text/plain': new Blob([plainText], { type: 'text/plain' }),
-    })]);
-
-    if (draftWindow && !draftWindow.closed) {
-      draftWindow.location.href = parsedComposeUrl.href;
-    } else if (!window.open(parsedComposeUrl.href, '_blank')) {
-      throw new Error('Browser memblokir pembukaan tab Gmail.');
-    }
-    if (typeof showToast === 'function') {
-      showToast('[✓] DESAIN LAPORAN DISALIN! TINGGAL PASTE (CTRL+V) DI TAB GMAIL YANG TERBUKA.');
-    }
+    const templateParams = {
+      to_email: recipient,
+      tanggal: new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()),
+      mitra,
+      skor_fundamental: roundedScore,
+      kategori,
+      status_keputusan: statusKeputusan,
+      ...persona,
+      ins: getScore('INS'),
+      ops: getScore('OPS'),
+      ect: getScore('ECT'),
+      ov: getScore('OV'),
+      ldi: getScore('LDI'),
+      weq: getScore('WEQ'),
+      rekomendasi_ai: result.rekomendasi_ai || 'Belum ada rekomendasi AI yang tersedia.',
+    };
+    await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+    status.textContent = `[✓] LAPORAN BERHASIL DIKIRIM KE ${recipient}`;
+    button.textContent = 'LAPORAN TERKIRIM';
   } catch (error) {
-    if (draftWindow && !draftWindow.closed) draftWindow.close();
-    const message = error && error.name === 'AbortError'
-      ? 'Waktu tunggu webhook n8n habis (12 detik).'
-      : (error && error.message) || 'Draft Gmail tidak dapat disiapkan.';
-    console.error('[UMKMetrics] Gagal menyiapkan draft Gmail.', error);
-    if (typeof showToast === 'function') showToast(`Gagal menyiapkan draft Gmail: ${message}`, 'error');
-  } finally {
-    window.clearTimeout(timeout);
+    const message = (error && (error.text || error.message)) || 'Periksa konfigurasi EmailJS lalu coba lagi.';
+    console.error('[UMKMetrics] Gagal mengirim laporan melalui EmailJS.', error);
+    status.textContent = `[!] GAGAL MENGIRIM LAPORAN: ${message}`;
     button.disabled = false;
-    button.textContent = 'BUKA DRAFT GMAIL';
+    button.textContent = 'KIRIM KE EMAIL DOSEN';
   }
 }
 
