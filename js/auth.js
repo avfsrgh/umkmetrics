@@ -67,6 +67,12 @@ function roleCardsHTML() {
 function renderLoginForm() {
   return `
     <div class="auth-form-wrap">
+      <div class="auth-card-wordmark">
+        <span class="brand-wordmark brand-wordmark--light" aria-label="UMKMetrics">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+        </span>
+      </div>
       <h1 class="auth-title">Selamat Datang Kembali</h1>
       <p class="auth-subtitle">Akses dasbor dan laporan klinis Anda.</p>
       ${roleCardsHTML()}
@@ -99,6 +105,12 @@ function renderLoginForm() {
 function renderRegisterForm() {
   return `
     <div class="auth-form-wrap">
+      <div class="auth-card-wordmark">
+        <span class="brand-wordmark brand-wordmark--light" aria-label="UMKMetrics">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+        </span>
+      </div>
       <h1 class="auth-title">Daftarkan Organisasi Anda</h1>
       <p class="auth-subtitle">Mulai langkah baru menuju manajemen data yang presisi.</p>
       ${roleCardsHTML()}
@@ -145,6 +157,12 @@ function renderRegisterForm() {
 function renderRegisterForm2() {
   return `
     <div class="auth-form-wrap">
+      <div class="auth-card-wordmark">
+        <span class="brand-wordmark brand-wordmark--light" aria-label="UMKMetrics">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+        </span>
+      </div>
       <h1 class="auth-title">Registrasi Profil Bisnis</h1>
       <p class="auth-subtitle">Lengkapi informasi dasar untuk memulai analisis kesehatan UMKM Anda.</p>
       <div class="form-group">

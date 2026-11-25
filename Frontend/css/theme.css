@@ -105,6 +105,105 @@ textarea:focus-visible,
   color: #EBB552;
 }
 
+.landing-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  line-height: 1;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.brand-wordmark__text {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 9999px;
+  background: #EBB552;
+  box-shadow: 0 0 0 3px rgba(235, 181, 82, 0.18);
+}
+
+.brand-wordmark__umk {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.brand-wordmark__metrics {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.brand-wordmark--dark .brand-wordmark__umk {
+  color: #FFFFFF;
+}
+
+.brand-wordmark--dark .brand-wordmark__metrics {
+  color: #EBB552;
+}
+
+.brand-wordmark--dark:hover .brand-wordmark__metrics {
+  color: #F1CDBE;
+}
+
+.brand-wordmark--light .brand-wordmark__umk,
+.brand-wordmark--light .brand-wordmark__metrics {
+  color: #1C322D;
+}
+
+.brand-wordmark--light .brand-wordmark__metrics {
+  border-bottom: 2px solid #EBB552;
+  padding-bottom: 1px;
+}
+
+.brand-tag {
+  padding: 3px 9px;
+  border: 1px solid rgba(235, 181, 82, 0.35);
+  border-radius: 9999px;
+  background: rgba(235, 181, 82, 0.14);
+  color: #EBB552;
+  font: 600 10px/1.2 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+}
+
+.landing-brand .brand-wordmark {
+  font-size: 22px;
+}
+
+.auth-brand .brand-wordmark {
+  font-size: 28px;
+}
+
+.auth-card-wordmark {
+  margin-bottom: 16px;
+}
+
+.auth-card-wordmark .brand-wordmark {
+  font-size: 28px;
+}
+
+.sidebar-logo .brand-wordmark {
+  font-size: 18px;
+}
+
+.footer-logo .brand-wordmark {
+  font-size: 16px;
+}
+
 .landing-nav-link {
   color: #FFFFFF;
 }
@@ -958,6 +1057,29 @@ canvas {
 }
 
 @media (max-width: 640px) {
+  .landing-brand .brand-wordmark {
+    font-size: 19px;
+  }
+
+  .landing-nav {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .landing-nav-btns {
+    gap: 6px;
+  }
+
+  .landing-nav-btns button {
+    padding-right: 10px;
+    padding-left: 10px;
+    font-size: 12px;
+  }
+
+  .brand-tag {
+    display: none;
+  }
+
   .auth-form-wrap {
     padding: 24px;
   }

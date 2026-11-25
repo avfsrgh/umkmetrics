@@ -7,16 +7,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<link rel="stylesheet" href="css/auth.css?v=20261129">
-<link rel="stylesheet" href="css/main.css?v=20261129">
-<link rel="stylesheet" href="css/theme.css?v=20261129">
+<link rel="stylesheet" href="css/auth.css?v=20261130">
+<link rel="stylesheet" href="css/main.css?v=20261130">
+<link rel="stylesheet" href="css/theme.css?v=20261130">
 </head>
 <body>
 
 <!-- ==================== LANDING PAGE ==================== -->
 <div id="landing-page">
   <nav class="landing-nav">
-    <div class="landing-brand">UMKMetrics</div>
+    <div class="landing-brand">
+      <span class="brand-wordmark brand-wordmark--dark">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+      </span>
+      <span class="brand-tag">OH-INDEX</span>
+    </div>
     <div class="landing-nav-links">
       <a class="landing-nav-link">Fitur</a>
       <a class="landing-nav-link">Tentang</a>
@@ -124,7 +130,12 @@
   </section>
 
   <footer class="landing-footer">
-    <div class="footer-logo">UMKMetrics</div>
+    <div class="footer-logo">
+      <span class="brand-wordmark brand-wordmark--dark">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+      </span>
+    </div>
     <div>© 2026 SiSEHAT Clinical Insights System. All rights reserved.</div>
     <div style="display:flex;gap:16px">
       <span style="cursor:pointer" onclick="showToast('Pusat Bantuan dibuka')">Bantuan</span>
@@ -137,7 +148,12 @@
 <div id="auth-page" class="auth-wrapper">
   <!-- Left Panel (always visible) -->
   <div class="auth-left">
-    <div class="auth-brand" onclick="showView('landing')" style="cursor:pointer">UMKMetrics</div>
+    <div class="auth-brand" onclick="showView('landing')" style="cursor:pointer">
+      <span class="brand-wordmark brand-wordmark--dark">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+      </span>
+    </div>
     <div class="auth-brand-tagline">Membangun Ekosistem UMKM yang Sehat &amp; Terukur.</div>
     <p class="auth-brand-desc">Platform analitik klinis yang dirancang khusus untuk meningkatkan kepatuhan dan manajemen risiko bagi pelaku UMKM modern.</p>
     <div class="auth-features">
@@ -176,7 +192,12 @@
   <!-- Sidebar -->
   <nav id="sidebar">
     <div class="sidebar-logo">
-      <div class="brand">UMKMetrics</div>
+      <div class="brand">
+        <span class="brand-wordmark brand-wordmark--dark">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+        </span>
+      </div>
       <div class="tagline">UMKM Health Dashboard</div>
     </div>
     <div class="sidebar-nav">
@@ -922,10 +943,10 @@
 <div id="toast"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg">Berhasil</span></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/api.js?v=20261129"></script>
-<script src="js/auth.js?v=20261129"></script>
-<script src="js/form.js?v=20261129"></script>
-<script src="js/main.js?v=20261129"></script>
-<script src="js/n8n-webhook.js?v=20261129"></script>
+<script src="js/api.js?v=20261130"></script>
+<script src="js/auth.js?v=20261130"></script>
+<script src="js/form.js?v=20261130"></script>
+<script src="js/main.js?v=20261130"></script>
+<script src="js/n8n-webhook.js?v=20261130"></script>
 </body>
 </html>

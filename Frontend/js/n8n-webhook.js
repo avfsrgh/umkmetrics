@@ -100,6 +100,12 @@ window.addEventListener('load', () => {
     modal.className = 'n8n-feedback-backdrop';
     modal.innerHTML = `
       <section class="n8n-feedback${isError ? ' n8n-feedback-error' : ''}" role="dialog" aria-modal="true" aria-labelledby="n8n-feedback-title">
+        <div class="n8n-brand">
+          <span class="brand-wordmark brand-wordmark--light" aria-label="UMKMetrics">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <span class="brand-wordmark__text"><span class="brand-wordmark__umk">UMK</span><span class="brand-wordmark__metrics">Metrics</span></span>
+          </span>
+        </div>
         <div class="n8n-connection n8n-label">${isError
           ? '[!] N8N WEBHOOK TIDAK TERHUBUNG'
           : '[✓] SUPABASE + N8N WEBHOOK TERHUBUNG'}</div>
@@ -134,6 +140,8 @@ window.addEventListener('load', () => {
         .n8n-feedback-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(28,50,45,.72);overflow-y:auto}
         .n8n-feedback,.n8n-feedback *{box-sizing:border-box}
         .n8n-feedback{width:min(100%,560px);max-height:calc(100vh - 32px);overflow-y:auto;padding:24px;background:#F8F3EE;color:#1C322D;border:1px solid #1C322D;border-radius:16px;font-family:'Inter',sans-serif;box-shadow:0 20px 48px rgba(0,0,0,.2)}
+        .n8n-brand{margin-bottom:14px}
+        .n8n-brand .brand-wordmark{font-size:16px}
         .n8n-feedback-error{border-style:solid}
         .n8n-feedback h2{margin:18px 0;font:500 26px/1.2 'Inter',sans-serif;color:#1C322D}
         .n8n-label{display:block;color:#4A5D58;font:600 12px/1.2 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
