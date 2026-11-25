@@ -1,4 +1,4 @@
-const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook-test/predict';
+const N8N_WEBHOOK_URL = 'http://localhost:5678/webhook/predict';
 
 window.addEventListener('load', () => {
   const originalSaveEvaluasi = window.saveEvaluasi;
