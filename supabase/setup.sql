@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS public.submissions (
 );
 CREATE INDEX IF NOT EXISTS idx_sub_user      ON public.submissions (user_id);
 CREATE INDEX IF NOT EXISTS idx_sub_submitted ON public.submissions (submitted_at);
--- Satu akun hanya boleh mengisi kuesioner sekali
+-- Satu akun menyimpan 1 evaluasi aktif terbaru (evaluasi ulang menimpa data lama)
 CREATE UNIQUE INDEX IF NOT EXISTS uq_sub_one_per_user ON public.submissions (user_id);
 
 CREATE TABLE IF NOT EXISTS public.answers (
@@ -247,8 +247,8 @@ BEGIN
   RETURN jsonb_build_object('ok', true);
 END $$;
 
--- ── 6. RPC: kirim kuesioner (validasi + skor + simpan) ─────────────────────
---  Port dari validator.php + endpoint submit di api.php.
+-- ── 6. RPC: kirim kuesioner (validasi + skor + simpan / perbarui) ──────────
+--  Mendukung pengisian ulang oleh akun yang sama (evaluasi baru menimpa data lama).
 --  Mengembalikan JSON: { ok, message, data }
 CREATE OR REPLACE FUNCTION public.submit_questionnaire(p_answers JSONB)
 RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
@@ -290,10 +290,6 @@ BEGIN
   SELECT * INTO v_prof FROM public.profiles WHERE id = v_uid;
   IF NOT FOUND THEN
     RETURN jsonb_build_object('ok', false, 'status', 401, 'message', 'Profil tidak ditemukan.');
-  END IF;
-
-  IF EXISTS (SELECT 1 FROM public.submissions WHERE user_id = v_uid) THEN
-    RETURN jsonb_build_object('ok', false, 'status', 403, 'message', 'Anda hanya dapat mengisi kuesioner sekali.');
   END IF;
 
   v_factors := CASE v_prof.role WHEN 'owner' THEN ARRAY['INS','ECT','OPS']
@@ -392,6 +388,9 @@ BEGIN
 
   -- ════════════════ OWNER ════════════════
   IF v_prof.role = 'owner' THEN
+    -- Hapus evaluasi lama milik akun ini agar bisa diperbarui berulang kali
+    DELETE FROM public.submissions WHERE user_id = v_uid;
+
     INSERT INTO public.submissions
       (user_id, role, status, validation_pass,
        score_ins, score_ov, score_ldi, score_weq, score_ops, score_ect,
@@ -436,6 +435,9 @@ BEGIN
     RETURN jsonb_build_object('ok', false, 'status', 403, 'message',
       'Owner dari UMKM "' || v_prof.umkm_name || '" belum mengisi kuesioner. Pegawai hanya dapat mengisi kuesioner setelah Owner mengisinya.');
   END IF;
+
+  -- Hapus evaluasi lama milik pegawai ini agar bisa diperbarui berulang kali
+  DELETE FROM public.submissions WHERE user_id = v_uid;
 
   -- 1. catat submission pegawai (tidak ikut statistik: validation_pass = 0)
   INSERT INTO public.submissions
