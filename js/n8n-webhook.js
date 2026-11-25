@@ -24,6 +24,7 @@ window.addEventListener('load', () => {
       role: user.role || 'UMKM Mitra',
       ...answers,
     };
+    window._lastN8nPayload = payload;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 12000);
 
@@ -56,6 +57,7 @@ window.addEventListener('load', () => {
   };
 
   window.showFeedbackPopup = function (data, elapsed) {
+    window._lastEvaluationData = data || {};
     const result = window._lastN8nResult || {};
     const composite = data && data.composite ? data.composite : {};
     const scores = result.scores || (data && data.scores) || {};
@@ -106,6 +108,10 @@ window.addEventListener('load', () => {
         <div class="n8n-factors">${factorRows}</div>
         <div class="n8n-recommendation"><span class="n8n-label">REKOMENDASI AI</span><p>${escapeN8n(recommendation)}</p></div>
         ${window._lastN8nError ? `<p class="n8n-error-message">${escapeN8n(window._lastN8nError)} Skor komposit Supabase ditampilkan sebagai fallback.</p>` : ''}
+        <div class="n8n-email-compose">
+          <input id="n8n-email-recipient" type="email" placeholder="Email dosen" aria-label="Email penerima laporan" required>
+          <button type="button" id="n8n-send-email-btn">BUKA DRAFT GMAIL</button>
+        </div>
         <div class="n8n-actions">
           <button type="button" class="n8n-primary" onclick="document.getElementById('feedbackPopup').remove();navigate('home')">LIHAT DASHBOARD</button>
           <button type="button" class="n8n-secondary" onclick="document.getElementById('feedbackPopup').remove()">TUTUP</button>
@@ -136,6 +142,10 @@ window.addEventListener('load', () => {
         .n8n-recommendation{margin-top:12px}
         .n8n-recommendation p{margin:8px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
         .n8n-error-message{padding:10px;border:2px dashed #FFFFFF;background:#000000}
+        .n8n-email-compose{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:18px}
+        .n8n-email-compose input,.n8n-email-compose button{min-width:0;min-height:44px;padding:10px;border:1px solid #FFFFFF;border-radius:0;background:#000000;color:#FFFFFF;font:400 12px monospace}
+        .n8n-email-compose button{cursor:pointer;font-family:'Silkscreen',monospace}
+        .n8n-email-compose button:disabled{opacity:.6;cursor:wait}
         .n8n-actions{display:flex;gap:12px;margin-top:18px}
         .n8n-actions button{min-height:44px;padding:10px 14px;border:2px solid #FFFFFF;font:400 12px 'Silkscreen',monospace;letter-spacing:.04em;cursor:pointer}
         .n8n-primary{flex:1;background:#FFFFFF;color:#000000;box-shadow:4px 4px 0 #4A4A4A}
@@ -146,8 +156,88 @@ window.addEventListener('load', () => {
     modal.addEventListener('click', event => {
       if (event.target === modal) modal.remove();
     });
+    modal.querySelector('#n8n-send-email-btn').addEventListener('click', sendResultToGmail);
   };
 });
+
+async function sendResultToGmail(event) {
+  const button = event.currentTarget;
+  const input = document.getElementById('n8n-email-recipient');
+  const recipient = input.value.trim();
+  if (!input.reportValidity()) return;
+
+  const draftWindow = window.open('about:blank', '_blank');
+  button.disabled = true;
+  button.textContent = 'MENYIAPKAN DRAFT...';
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 12000);
+
+  try {
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        ...(window._lastN8nPayload || {}),
+        email_tujuan: recipient,
+        evaluasi: window._lastEvaluationData || {},
+        hasil_n8n: window._lastN8nResult || {},
+      }),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      throw new Error(`n8n mengembalikan status HTTP ${response.status}.`);
+    }
+
+    const responseData = await response.json();
+    const result = Array.isArray(responseData) ? responseData[0] : responseData;
+    const emailHtml = result && (result.email_html || (result.data && result.data.email_html));
+    const composeUrl = result && (result.gmail_compose_url || (result.data && result.data.gmail_compose_url));
+    if (typeof emailHtml !== 'string' || !emailHtml.trim()) {
+      throw new Error('Respons n8n tidak menyertakan email_html.');
+    }
+    if (typeof composeUrl !== 'string' || !composeUrl.trim()) {
+      throw new Error('Respons n8n tidak menyertakan gmail_compose_url.');
+    }
+
+    const parsedComposeUrl = new URL(composeUrl);
+    if (parsedComposeUrl.protocol !== 'https:' || parsedComposeUrl.hostname !== 'mail.google.com') {
+      throw new Error('URL draft tidak mengarah ke Gmail yang aman.');
+    }
+    if (!navigator.clipboard || typeof navigator.clipboard.write !== 'function' || typeof ClipboardItem === 'undefined') {
+      throw new Error('Clipboard Rich HTML tidak tersedia di browser ini.');
+    }
+
+    const plainText = result.email_text || new DOMParser()
+      .parseFromString(emailHtml, 'text/html').body.textContent || '';
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html': new Blob([emailHtml], { type: 'text/html' }),
+      'text/plain': new Blob([plainText], { type: 'text/plain' }),
+    })]);
+
+    if (draftWindow && !draftWindow.closed) {
+      draftWindow.location.href = parsedComposeUrl.href;
+    } else if (!window.open(parsedComposeUrl.href, '_blank')) {
+      throw new Error('Browser memblokir pembukaan tab Gmail.');
+    }
+    if (typeof showToast === 'function') {
+      showToast('[✓] DESAIN LAPORAN DISALIN! TINGGAL PASTE (CTRL+V) DI TAB GMAIL YANG TERBUKA.');
+    }
+  } catch (error) {
+    if (draftWindow && !draftWindow.closed) draftWindow.close();
+    const message = error && error.name === 'AbortError'
+      ? 'Waktu tunggu webhook n8n habis (12 detik).'
+      : (error && error.message) || 'Draft Gmail tidak dapat disiapkan.';
+    console.error('[UMKMetrics] Gagal menyiapkan draft Gmail.', error);
+    if (typeof showToast === 'function') showToast(`Gagal menyiapkan draft Gmail: ${message}`, 'error');
+  } finally {
+    window.clearTimeout(timeout);
+    button.disabled = false;
+    button.textContent = 'BUKA DRAFT GMAIL';
+  }
+}
 
 function toPercent(value, fallback) {
   const number = Number(value);
